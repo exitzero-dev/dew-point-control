@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="it" style="height: 100vh;">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#007bff" />
+    <title>Dew Point Control</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q"
+        crossorigin="anonymous"></script>
+</head>
+
+<body style="height: 100vh;">
+
+    <div class="modal" tabindex="-1" id="modal-esito">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span class="modal-title">Dew Point Control</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3 mt-3">
+                        <div class="col text-center">
+                            <h5 id="esito-calcolo"></h5>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col text-center text-muted fs-6">
+                            Punto di rugiada interno
+                        </div>
+                        <div class="col text-center text-muted fs-6">
+                            Punto di rugiada esterno
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col text-center text-muted fw-bold fs-6">
+                            <span id="dewpoint-int"></span>
+                        </div>
+                        <div class="col text-center text-muted fw-bold fs-6">
+                            <span id="dewpoint-ext"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container h-100">
+        <div class="d-flex flex-grow-1 justify-content-center align-items-center h-100">
+            <div class="row w-100">
+                <div class="col-12 col-md-6 col-lg-6 offset-md-3 offset-lg-3">
+                    <div class="card col-6 w-100">
+                        <div class="card-header text-center">
+                            <b>Dew Point Control</b>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col">
+                                    <label for="temp-interna" class="form-label">Temperatura interna</label>
+                                    <div class="input-group">
+                                        <input id="temp-interna" class="form-control" type="number" step="0.1" />
+                                        <span class="input-group-text">°C</span>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <label for="umidita-interna" class="form-label">Umidità interna</label>
+                                    <div class="input-group">
+                                        <input id="umidita-interna" class="form-control" type="number" step="0.1" />
+                                        <span class="input-group-text">%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col">
+                                    <label for="temp-esterna" class="form-label">Temperatura esterna</label>
+                                    <div class="input-group">
+                                        <input id="temp-esterna" class="form-control" type="number" step="0.1" />
+                                        <span class="input-group-text">°C</span>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <label for="umidita-esterna" class="form-label">Umidità esterna</label>
+                                    <div class="input-group">
+                                        <input id="umidita-esterna" class="form-control" type="number" step="0.1" />
+                                        <span class="input-group-text">%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col text-center">
+                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                                        data-bs-target="#modal-esito" onclick="verificaVentilazione()">Verifica</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./service-worker.js')
+                .then(() => console.log('Service Worker registrato'))
+                .catch(error => console.error('Errore Service Worker:', error));
+        }
+
+        function calcolaPuntoRugiada(t, rh) {
+            const a = 17.62;
+            const b = 243.12;
+            const alpha = Math.log(rh / 100) + (a * t) / (b + t);
+            return (b * alpha) / (a - alpha);
+        }
+
+        function verificaVentilazione() {
+            const tInt = parseFloat(document.getElementById("temp-interna").value);
+            const rhInt = parseFloat(document.getElementById("umidita-interna").value);
+            const tExt = parseFloat(document.getElementById("temp-esterna").value);
+            const rhExt = parseFloat(document.getElementById("umidita-esterna").value);
+
+            if (isNaN(tInt) || isNaN(rhInt) || isNaN(tExt) || isNaN(rhExt)) {
+                alert("Per favore, compila tutti i campi correttamente.");
+                return;
+            }
+
+            const dewInt = calcolaPuntoRugiada(tInt, rhInt);
+            const dewExt = calcolaPuntoRugiada(tExt, rhExt);
+
+            document.getElementById('dewpoint-int').innerHTML = dewInt.toFixed(2) + " °C";
+            document.getElementById('dewpoint-ext').innerHTML = dewExt.toFixed(2) + " °C";
+
+            if (dewExt < dewInt && ((dewInt - dewExt) > 2)) {
+                document.getElementById('esito-calcolo').innerHTML = "Puoi aprire le finestre e ventilare";
+            } else {
+                document.getElementById('esito-calcolo').innerHTML = "Al momento non ci sono le condizioni ideali per ventilare";
+            }
+        }
+
+    </script>
+</body>
+
+</html>

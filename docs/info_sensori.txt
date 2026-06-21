@@ -1,0 +1,15 @@
+---------
+   NAME:     CASA ESTERNO
+   ID:       blt.4.1p7tbum3tg800
+   BLE KEY:  3feb89437842c385e66f0ed0c9a582f5
+   MAC:      A4:C1:38:6E:23:49
+   TOKEN:    b9373e35f489e2671cdd156c
+   MODEL:    miaomiaoce.sensor_ht.t2
+   ---------
+   NAME:     CASA INTERNO
+   ID:       blt.4.1p7tjsen1g800
+   BLE KEY:  f43bd75411600e109598a606914abe3c
+   MAC:      A4:C1:38:DD:E1:41
+   TOKEN:    be99a8933dae3f45471576b4
+   MODEL:    miaomiaoce.sensor_ht.t2
+
