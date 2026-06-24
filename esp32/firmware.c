@@ -6,6 +6,7 @@
 #include <cmath>
 
 // --- 1. SCELTA DELLA ZONA ---
+// Modifica questa variabile in "TAVERNA" prima di caricare il codice sul secondo dispositivo
 const String TIPO_COMPILAZIONE = "CASA";
 
 // --- 2. CONFIGURAZIONE LED CORRETTA (T-Dongle-S3) ---
@@ -132,17 +133,20 @@ void loop() {
             if (dewInt > (dewEst + 2)) {
                 // VERDE -> Aprire (R=0, G=255, B=0)
                 coloreAttuale = pixels.Color(0, 255, 0); 
+            } else if (dewInt >= dewEst && dewInt <= (dewEst + 2)) {
+                // GIALLO -> Si può aprire (R=255, G=255, B=0)
+                coloreAttuale = pixels.Color(255, 255, 0); 
             } else {
                 // ROSSO -> Chiudere (R=255, G=0, B=0)
                 coloreAttuale = pixels.Color(255, 0, 0); 
             }
         } else {
             Serial.printf("DATI NON VALIDI --> Dew point interno: %.2f, Dew point esterno: %.2f\n", dewInt, dewEst);
-            coloreAttuale = pixels.Color(255, 100, 0); 
+            coloreAttuale = pixels.Color(160, 32, 240);
         }
     } else {
-        // ARANCIONE/GIALLO -> Sensori non raggiungibili (R=255, G=100, B=0)
-        coloreAttuale = pixels.Color(255, 100, 0); 
+        // Sensori non raggiungibili
+        coloreAttuale = pixels.Color(160, 32, 240); 
     }
 
     // Applica il colore definitivo
@@ -153,7 +157,6 @@ void loop() {
     // FASE 3: MANTENIMENTO (LED FISSO) E PAUSA DI 5 MINUTI
     // ---------------------------------------------------------
     unsigned long waitStart = millis();
-
     while (millis() - waitStart < TIMEOUT) {
         delay(1000); 
     }
